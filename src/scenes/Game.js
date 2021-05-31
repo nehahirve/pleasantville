@@ -28,10 +28,8 @@ export default class Game extends Phaser.Scene {
     this.music = this.sound.add('music')
     if (!this.music.isPlaying) this.music.play({ volume: 0.3 })
     //LOAD SPRITES
-    this.player = this.add
-      .existing(new Player(this, 50, 400))
-      .setImmovable()
-      .setSize(20, 20, 20, 20)
+    this.player = this.add.existing(new Player(this, 50, 400))
+
     this.raven = this.add.existing(new Raven(this, 150, 100))
 
     //ADD ENEMY GROUP
@@ -53,6 +51,7 @@ export default class Game extends Phaser.Scene {
     // TIMER
     this.clock = this.add.image(890, 65, 'clock').setScale(2)
     this.timer = new Timer(this, timerLabel)
+    this.setSun()
     this.timer.start(this.gameOver.bind(this))
 
     // EVENTS
@@ -132,8 +131,8 @@ export default class Game extends Phaser.Scene {
     this.background.move()
 
     //MOVE PLAYER
-    if (this.player.body.position.y < 320) this.player.body.position.y = 320
-    this.player.setScale(this.player.body.position.y / 300)
+    if (this.player.body.position.y < 330) this.player.body.position.y = 330
+    this.player.setScale(this.player.body.position.y / 400)
     if (this.cursors.left.isDown && !this.cursors.right.isDown) {
       if (this.gameSpeed > 0 && !this.isPoliceChase) {
         this.gameSpeed -= 0.5
@@ -214,7 +213,7 @@ export default class Game extends Phaser.Scene {
   //HELPER METHODS
   spawnEnemyCar() {
     const distance = Phaser.Math.Between(100, 200)
-    const arr = [330, 390, 480]
+    const arr = [330, 390, 470]
     const cars = ['enemyCar1', 'enemyCar2', 'enemyCar3']
     const randomDistance = arr[Math.floor(Math.random() * arr.length)]
     const randomCar = cars[Math.floor(Math.random() * cars.length)]
@@ -224,7 +223,7 @@ export default class Game extends Phaser.Scene {
       .setImmovable()
       .setDepth(3)
       .setSize(20, 20, 20, 20)
-    car.setScale(car.body.position.y / 300)
+    car.setScale(car.body.position.y / 400)
     car.body.allowGravity = false
     this.physics.add.collider(
       this.player,
@@ -254,7 +253,7 @@ export default class Game extends Phaser.Scene {
       .play('police')
       .setImmovable()
       .setDepth(3)
-    car.setScale(car.body.position.y / 300)
+    car.setScale(car.body.position.y / 400)
     car.body.allowGravity = false
     this.tween()
     car.setVelocityX(159)
@@ -326,6 +325,34 @@ export default class Game extends Phaser.Scene {
       this.tweens.remove(blink)
       this.player.setAlpha(1)
     }, 1000)
+  }
+
+  setSun() {
+    const red = Phaser.Display.Color.ValueToColor('#ffffff')
+    const blue = Phaser.Display.Color.ValueToColor('#0000ff')
+
+    this.tweens.addCounter({
+      from: 0,
+      to: 100,
+      duration: 50000,
+      ease: Phaser.Math.Easing.Sine.InOut,
+      repeat: 0,
+      onUpdate: tween => {
+        const value = tween.getValue()
+        const colorObject = Phaser.Display.Color.Interpolate.ColorWithColor(
+          red,
+          blue,
+          100,
+          value
+        )
+        const color = Phaser.Display.Color.GetColor(
+          colorObject.r,
+          colorObject.g,
+          colorObject.b
+        )
+        this.background.sky.setTint(color)
+      }
+    })
   }
 
   animateGameOver() {
