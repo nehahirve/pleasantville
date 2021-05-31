@@ -5,7 +5,7 @@ export default class Timer {
     this.countdown = false
   }
 
-  start(callback, duration = 100000) {
+  start(callback, duration = 75000) {
     this.stop()
 
     this.finishedCallback = callback
@@ -41,7 +41,7 @@ export default class Timer {
     const remaining = this.duration - elapsed
     const seconds = remaining / 1000
 
-    if (remaining < 6000) {
+    if (remaining < 10000) {
       console.log('time us up')
       if (!this.countdown) {
         this.tween()

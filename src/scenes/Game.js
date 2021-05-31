@@ -13,13 +13,14 @@ export default class Game extends Phaser.Scene {
 
   create() {
     // GAME VARIABLES
-    this.gameSpeed = 19
+    this.mileage = 5000
+    this.gameSpeed = 22
     this.respawnTime = 0
-    this.respawnTimePolice = 0
     this.isPoliceChase = false
-    this.totalDistance = 10000
+    this.totalDistance = this.mileage
     this.winGameAnim = false
     this.slowedDown = false
+    this.crashes = 0
 
     this.anims = new Animations(this)
     this.background = new Background(this)
@@ -27,7 +28,10 @@ export default class Game extends Phaser.Scene {
     this.music = this.sound.add('music')
     if (!this.music.isPlaying) this.music.play({ volume: 0.3 })
     //LOAD SPRITES
-    this.player = this.add.existing(new Player(this, 50, 400))
+    this.player = this.add
+      .existing(new Player(this, 50, 400))
+      .setImmovable()
+      .setSize(20, 20, 20, 20)
     this.raven = this.add.existing(new Raven(this, 150, 100))
 
     //ADD ENEMY GROUP
@@ -53,6 +57,8 @@ export default class Game extends Phaser.Scene {
 
     // EVENTS
     this.events.once('police1', this.spawnPolice, this)
+    this.events.once('police2', this.spawnPolice, this)
+    this.events.once('police3', this.spawnPolice, this)
     this.events.once('mileage900', this.handler, this)
     // this.events.once('mileage800', this.handler, this)
     // this.events.once('mileage700', this.handler, this)
@@ -83,6 +89,7 @@ export default class Game extends Phaser.Scene {
   }
 
   update(time, delta) {
+    if (this.crashes > 5) this.gameOver()
     if (this.winGameAnim) {
       this.animateGameOver()
       return
@@ -93,25 +100,33 @@ export default class Game extends Phaser.Scene {
     if (this.raven) this.raven.update()
 
     this.totalDistance -= (this.gameSpeed * time) / 1000000
-    // if (this.totalDistance <= 990) {
-    //   this.events.emit('mileage900')
-    // }
-    // if (this.totalDistance <= 800) {
-    //   this.events.emit('mileage800')
-    // }
-    // if (this.totalDistance <= 700) {
-    //   this.events.emit('mileage700')
-    // }
-    // if (this.totalDistance <= 600) {
-    //   this.events.emit('mileage600')
-    // }
-    if (this.totalDistance <= 8000) {
+    if (this.totalDistance <= (this.mileage / 10) * 9) {
+      this.events.emit('mileage900')
+    }
+    if (this.totalDistance <= (this.mileage / 10) * 8) {
+      this.events.emit('mileage800')
+    }
+    if (this.totalDistance <= (this.mileage / 10) * 7) {
+      this.events.emit('mileage700')
+    }
+    if (this.totalDistance <= (this.mileage / 10) * 6) {
+      this.events.emit('mileage600')
+    }
+    if (this.totalDistance <= 0) {
       this.events.emit('mileage500')
       this.events.emit('wingame')
     }
 
-    if (this.totalDistance <= 9990) {
+    if (this.totalDistance <= (this.mileage / 10) * 9) {
       this.events.emit('police1')
+    }
+
+    if (this.totalDistance <= (this.mileage / 10) * 5) {
+      this.events.emit('police2')
+    }
+
+    if (this.totalDistance <= (this.mileage / 10) * 4) {
+      this.events.emit('police3')
     }
 
     this.background.move()
@@ -130,7 +145,7 @@ export default class Game extends Phaser.Scene {
     } else if (this.cursors.right.isDown) {
       this.player.setVelocityX(160)
       if (this.gameSpeed === 0) this.gameSpeed = 19
-      if (this.gameSpeed < 70) this.gameSpeed += 0.5
+      if (this.gameSpeed < 80) this.gameSpeed += 0.5
     } else {
       if (this.isPoliceChase) {
         this.player.setVelocityX(-200)
@@ -141,16 +156,16 @@ export default class Game extends Phaser.Scene {
       }
     }
     if (this.cursors.up.isDown && !this.cursors.down.isDown) {
-      this.player.setVelocityY((-800 * this.gameSpeed) / 50)
+      this.player.setVelocityY(-200)
       this.player.anims.play('driveLeft', true)
     } else if (this.cursors.down.isDown) {
-      this.player.setVelocityY((800 * this.gameSpeed) / 50)
+      this.player.setVelocityY(200)
       this.player.anims.play('driveRight', true)
     } else {
       this.player.setVelocityY(0)
       this.player.anims.play('driveForward', true)
     }
-    if (this.player.body.position.x < 50) this.player.body.position.x = 50
+    if (this.player.body.position.x < 100) this.player.body.position.x = 100
     if (this.player.body.position.x > this.game.config.width - 200)
       this.player.body.position.x = this.game.config.width - 200
 
@@ -175,9 +190,8 @@ export default class Game extends Phaser.Scene {
     })
     Phaser.Actions.IncX(this.enemyCars.getChildren(), -this.gameSpeed * 0.3)
     // POLICE
-    // Phaser.Actions.IncX(this.policeCars.getChildren(), this.gameSpeed * 0.4)
     this.policeCars.getChildren().forEach(child => {
-      if (child.body.position.x > this.game.config.width - 400) {
+      if (child.body.position.x > this.game.config.width - 300) {
         this.physics.world.removeCollider(this.policeCollider)
         if (this.player.body.position.y > 300) {
           child.body.position.y++
@@ -209,6 +223,7 @@ export default class Game extends Phaser.Scene {
       .play(randomCar)
       .setImmovable()
       .setDepth(3)
+      .setSize(20, 20, 20, 20)
     car.setScale(car.body.position.y / 300)
     car.body.allowGravity = false
     this.physics.add.collider(
@@ -216,13 +231,14 @@ export default class Game extends Phaser.Scene {
       car,
       () => {
         if (!this.slowedDown) {
+          this.crashes++
           this.slowedDown = true
           this.blink(this.player)
           this.blink(car)
           setTimeout(() => {
             this.player.setTint(0xffffff)
             this.slowedDown = false
-          }, 2000)
+          }, 500)
         } else return
       },
       null,
@@ -234,14 +250,14 @@ export default class Game extends Phaser.Scene {
     this.isPoliceChase = true
     const height = this.player.body.position.y
     const car = this.policeCars
-      .create(-1000, height, 'police')
+      .create(-500, height, 'police')
       .play('police')
       .setImmovable()
       .setDepth(3)
     car.setScale(car.body.position.y / 300)
     car.body.allowGravity = false
     this.tween()
-    car.setVelocityX(250)
+    car.setVelocityX(159)
     this.policeCollider = this.physics.add.collider(
       this.player,
       car,
@@ -302,14 +318,14 @@ export default class Game extends Phaser.Scene {
   blink(item) {
     let blink = this.tweens.add({
       targets: [item],
-      alpha: { value: 0, duration: 200, ease: 'Power1' },
+      alpha: { value: 0, duration: 100, ease: 'Power1' },
       yoyo: true,
       loop: -1
     })
     setTimeout(() => {
       this.tweens.remove(blink)
       this.player.setAlpha(1)
-    }, 2000)
+    }, 1000)
   }
 
   animateGameOver() {
