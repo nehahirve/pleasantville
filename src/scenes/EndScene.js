@@ -22,6 +22,7 @@ export default class EndScene extends Phaser.Scene {
       .play('carinside')
       .setOrigin(0, 0)
     this.postcard = this.add.sprite(340, 460, 'postcard').setInteractive()
+    this.blink(this.postcard)
     this.postcard.on('pointerover', () => {
       this.postcard.setTint(0xff0000)
     })
@@ -34,6 +35,15 @@ export default class EndScene extends Phaser.Scene {
 
     this.postcard.on('pointerout', () => {
       this.postcard.clearTint()
+    })
+  }
+
+  blink(item) {
+    let blink = this.tweens.add({
+      targets: [item],
+      scale: { value: 1.1, duration: 1000, ease: 'Power1' },
+      yoyo: true,
+      loop: -1
     })
   }
 }

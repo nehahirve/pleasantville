@@ -24,5 +24,4 @@ const config = {
   },
   scene: [Preloader, Title, Game, GameOver, End]
 }
-
 export default new Phaser.Game(config)

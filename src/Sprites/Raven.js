@@ -6,7 +6,6 @@ export default class Raven extends Phaser.Physics.Arcade.Sprite {
     scene.physics.world.enableBody(this)
     this.setScale(1.5).play('fly').setVelocityX(100)
     this.body.allowGravity = false
-    this.body.allowGravity = false
     this.scene = scene
   }
 

@@ -1,11 +1,18 @@
 export default class Timer {
-  constructor(scene, label) {
+  constructor(scene, x, y) {
     this.scene = scene
-    this.label = label
+    this.label = this.scene.add
+      .text(x - 35, y - 15, '45', {
+        fontSize: 36,
+        fontFamily: 'mxCompis'
+      })
+      .setDepth(4)
     this.countdown = false
+    this.scene.add.image(x, y, 'clock').setScale(2)
+    this.beep = this.scene.sound.add('timer')
   }
 
-  start(callback, duration = 75000) {
+  start(callback, duration) {
     this.stop()
 
     this.finishedCallback = callback
@@ -27,6 +34,7 @@ export default class Timer {
 
   stop() {
     if (this.timerEvent) {
+      this.beep.stop()
       this.timerEvent.destroy()
       this.timerEvent = undefined
     }
@@ -39,16 +47,22 @@ export default class Timer {
 
     const elapsed = this.timerEvent.getElapsed()
     const remaining = this.duration - elapsed
-    const seconds = remaining / 1000
+    const minutes = Math.floor((remaining / 1000 / 60) % 60)
+    const seconds = Math.floor((remaining / 1000) % 60)
+    const timeString = [
+      minutes.toString().padStart(2, '0'),
+      seconds.toString().padStart(2, '0')
+    ].join(':')
 
     if (remaining < 10000) {
+      if (!this.beep.isPlaying) this.beep.play()
       console.log('time us up')
       if (!this.countdown) {
         this.tween()
         this.countdown = true
       }
     }
-    this.label.text = seconds.toFixed(2)
+    this.label.text = `${timeString}`
   }
 
   tween() {

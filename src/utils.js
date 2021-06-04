@@ -6,4 +6,10 @@ const createTextLabel = (scene, x, y) => {
   })
 }
 
-export { createTextLabel }
+const loadHearts = (scene, x, y, number) => {
+  for (let i = 0; i < number; i++) {
+    scene[`heart${i + 1}`] = scene.add.image(x + 20 * i, y, 'heart')
+  }
+}
+
+export { createTextLabel, loadHearts }

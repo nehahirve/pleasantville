@@ -1,13 +1,16 @@
 import Phaser from 'phaser'
 
 import background from '../assets/background-title.png'
+import heart from '../assets/heart.png'
 import endScene from '../assets/endscene.png'
 import endSceneWithPostcard from '../assets/endscene-postcard.png'
 import postcard from '../assets/postcard.png'
 import gameOver from '../assets/gameover.png'
 import sky from '../assets/sky.png'
+import skyEnd from '../assets/sky-end.png'
 import sun from '../assets/sun.png'
 import clouds from '../assets/clouds.png'
+import cloudsEnd from '../assets/clouds-end.png'
 import backTrees from '../assets/back-trees.png'
 import frontTrees from '../assets/front-trees.png'
 import midground from '../assets/midground.png'
@@ -23,7 +26,11 @@ import mediumSign from '../assets/sign-medium.png'
 import lastSign from '../assets/sign-last.png'
 import mile100 from '../assets/mile-100.png'
 import clock from '../assets/clock.png'
-// import keyboard from '../assets/sfx/keyboard.mp3'
+import pressEnter from '../assets/press-enter.png'
+import keyboard from '../assets/sfx/keyboard.mp3'
+import music from '../assets/sfx/music.mp3'
+import crash from '../assets/sfx/crash.wav'
+import timer from '../assets/sfx/timer.wav'
 
 export default class Preloader extends Phaser.Scene {
   constructor() {
@@ -39,18 +46,21 @@ export default class Preloader extends Phaser.Scene {
     this.load.image('postcard', postcard)
     // parallax background
     this.load.image('sky', sky)
+    this.load.image('skyEnd', skyEnd)
     this.load.image('sun', sun)
     this.load.image('clouds', clouds)
+    this.load.image('cloudsEnd', cloudsEnd)
     this.load.image('backTrees', backTrees)
     this.load.image('frontTrees', frontTrees)
     this.load.image('midground', midground)
     this.load.image('foreground', foreground)
-    this.load.image('lastSign', lastSign)
     this.load.image('mile100', mile100)
     this.load.image('clock', clock)
+    this.load.image('heart', heart)
     //road
     this.load.image('ground', ground)
     this.load.image('backfence', backfence)
+    this.load.image('pressEnter', pressEnter)
 
     //sprites
     this.load.spritesheet('player', player, {
@@ -81,8 +91,14 @@ export default class Preloader extends Phaser.Scene {
       frameWidth: 1024,
       frameHeight: 512
     })
-    this.load.audio('keyboard', ['src/assets/sfx/keyboard.mp3'])
-    this.load.audio('music', ['src/assets/sfx/music.mp3'])
+    this.load.spritesheet('lastSign', lastSign, {
+      frameWidth: 256,
+      frameHeight: 256
+    })
+    this.load.audio('keyboard', keyboard)
+    this.load.audio('music', music)
+    this.load.audio('crash', crash)
+    this.load.audio('timer', timer)
 
     this.graphics = this.add.graphics()
     this.newGraphics = this.add.graphics()
@@ -111,6 +127,6 @@ export default class Preloader extends Phaser.Scene {
   }
 
   complete() {
-    this.scene.start('game')
+    this.scene.start('title')
   }
 }

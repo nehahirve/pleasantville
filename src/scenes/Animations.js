@@ -69,5 +69,14 @@ export default class Animations {
       frameRate: 4,
       repeat: -1
     })
+    scene.anims.create({
+      key: 'lastSign',
+      frames: scene.anims.generateFrameNumbers('lastSign', {
+        start: 0,
+        end: 3
+      }),
+      frameRate: 4,
+      repeat: -1
+    })
   }
 }
