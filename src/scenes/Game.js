@@ -259,26 +259,26 @@ export default class Game extends Phaser.Scene {
       .setSize(20, 20, 20, 20)
     car.setScale(car.body.position.y / this.carScale)
     car.body.allowGravity = false
-    // this.physics.add.collider(
-    //   this.player,
-    //   car,
-    //   () => {
-    //     if (!this.slowedDown) {
-    //       this.crashes++
-    //       this.slowedDown = true
-    //       this.blink(this.player)
-    //       this.blink(this[`heart${6 - this.crashes}`])
+    this.physics.add.collider(
+      this.player,
+      car,
+      () => {
+        if (!this.slowedDown) {
+          this.crashes++
+          this.slowedDown = true
+          this.blink(this.player)
+          this.blink(this[`heart${6 - this.crashes}`])
 
-    //       this.blink(car)
-    //       setTimeout(() => {
-    //         this.player.setTint(0xffffff)
-    //         this.slowedDown = false
-    //       }, 500)
-    //     } else return
-    //   },
-    //   null,
-    //   this
-    // )
+          this.blink(car)
+          setTimeout(() => {
+            this.player.setTint(0xffffff)
+            this.slowedDown = false
+          }, 500)
+        } else return
+      },
+      null,
+      this
+    )
   }
 
   spawnPolice() {
