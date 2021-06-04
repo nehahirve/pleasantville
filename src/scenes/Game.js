@@ -26,16 +26,16 @@ export default class Game extends Phaser.Scene {
       policeCarSpeed: 159
     }
 
-    // this.pane = new Pane()
+    this.pane = new Pane()
 
     // this.pane.addInput(this.params, 'totalDistance')
     // this.pane.addInput(this.params, 'totalTime')
     // this.pane.addInput(this.params, 'gameSpeedFactor')
-    // this.pane.addInput(this.params, 'enemyCarRespawnRate')
+    this.pane.addInput(this.params, 'enemyCarRespawnRate')
     // this.pane.addInput(this.params, 'sunsetTime')
-    // this.pane.addInput(this.params, 'carScale')
+    this.pane.addInput(this.params, 'carScale')
     // this.pane.addInput(this.params, 'noOfLives')
-    // this.pane.addInput(this.params, 'policeCarSpeed')
+    this.pane.addInput(this.params, 'policeCarSpeed')
 
     this.totalDistance = this.params.totalDistance
     this.gameTime = this.params.totalTime
