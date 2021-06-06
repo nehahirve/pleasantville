@@ -124,16 +124,20 @@ export default class Preloader extends Phaser.Scene {
     this.load.audio('timer', timer)
     this.load.audio('siren', siren)
     this.load.audio('bump', bump)
-
+    this.label = this.add.text(450, 300, 'loading...', {
+      fontSize: 24,
+      fontFamily: 'mxCompis',
+      color: '#fdf7e2'
+    })
     this.graphics = this.add.graphics()
     this.newGraphics = this.add.graphics()
-    this.progressBar = new Phaser.Geom.Rectangle(200, 200, 400, 50)
-    this.progressBarFill = new Phaser.Geom.Rectangle(205, 205, 290, 40)
+    this.progressBar = new Phaser.Geom.Rectangle(300, 200, 400, 30)
+    this.progressBarFill = new Phaser.Geom.Rectangle(300, 200, 290, 30)
 
-    this.graphics.fillStyle(0xffffff, 1)
+    this.graphics.fillStyle(0xfdf7e2, 1)
     this.graphics.fillRectShape(this.progressBar)
 
-    this.newGraphics.fillStyle(0x3587e2, 1)
+    this.newGraphics.fillStyle(0xee7b9a, 1)
     this.newGraphics.fillRectShape(this.progressBarFill)
 
     this.load.on('progress', this.updateBar, {
@@ -144,14 +148,14 @@ export default class Preloader extends Phaser.Scene {
 
   updateBar(percentage) {
     this.newGraphics.clear()
-    this.newGraphics.fillStyle(0x3587e2, 1)
+    this.newGraphics.fillStyle(0xee7b9a, 1)
     this.newGraphics.fillRectShape(
-      new Phaser.Geom.Rectangle(205, 205, percentage * 390, 40)
+      new Phaser.Geom.Rectangle(300, 200, percentage * 390, 30)
     )
     percentage = percentage * 100
   }
 
   complete() {
-    this.scene.start('game')
+    this.scene.start('title')
   }
 }
