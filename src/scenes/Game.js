@@ -1,10 +1,9 @@
 import Phaser from 'phaser'
-import { Pane } from 'tweakpane'
 
 import Timer from './Timer'
+import Animations from './Animations'
 import Player from '../Sprites/Player'
 import Raven from '../Sprites/Raven'
-import Animations from './Animations'
 import Background from '../Sprites/Background'
 import PoliceCar from '../Sprites/PoliceCar'
 import { loadHearts } from '../utils'
@@ -18,7 +17,7 @@ export default class Game extends Phaser.Scene {
     this.params = {
       totalDistance: 10000,
       totalTime: 75000,
-      gameSpeedFactor: 1,
+      gameSpeed: 22,
       enemyCarRespawnRate: 3000,
       sunsetTime: 60000,
       carScale: 400,
@@ -26,20 +25,12 @@ export default class Game extends Phaser.Scene {
       policeCarSpeed: 159
     }
 
-    this.pane = new Pane()
-
-    // this.pane.addInput(this.params, 'totalDistance')
-    // this.pane.addInput(this.params, 'totalTime')
-    // this.pane.addInput(this.params, 'gameSpeedFactor')
-    this.pane.addInput(this.params, 'enemyCarRespawnRate')
-    // this.pane.addInput(this.params, 'sunsetTime')
-    this.pane.addInput(this.params, 'carScale')
-    // this.pane.addInput(this.params, 'noOfLives')
-    this.pane.addInput(this.params, 'policeCarSpeed')
+    this.anims = new Animations(this)
 
     this.totalDistance = this.params.totalDistance
     this.gameTime = this.params.totalTime
-    this.gameSpeed = 22
+    this.gameSpeed = this.params.gameSpeed
+    this.maxGameSpeed = 80
     this.sunsetTime = this.params.sunsetTime
     this.carScale = this.params.carScale
     // GAME VARIABLES
@@ -51,18 +42,27 @@ export default class Game extends Phaser.Scene {
     this.crashes = 0
     this.remainingDistance = this.totalDistance
 
-    this.anims = new Animations(this)
     this.background = new Background(this)
 
-    this.music = this.sound.add('music')
     this.crash = this.sound.add('crash')
-    if (!this.music.isPlaying) this.music.play({ volume: 0.2 })
+    this.music = this.sound.add('music')
+    if (!this.music.isPlaying) {
+      this.music.play({ volume: 0.2, loop: true })
+    }
     //LOAD SPRITES
     this.player = this.add.existing(new Player(this, 50, 400))
     this.raven = this.add.existing(new Raven(this, 150, 100))
 
     //LOAD HEARTS
     loadHearts(this, 40, 60, this.params.noOfLives)
+
+    //LOAD MINIMAP
+    this.minimap = this.add.graphics()
+    this.progress = this.add.graphics()
+    this.minimapBar = new Phaser.Geom.Rectangle(30, 30, 200, 5)
+
+    this.minimap.fillStyle(0xfdf7e2, 1)
+    this.minimap.fillRectShape(this.minimapBar)
 
     //ADD ENEMY GROUP
     this.enemyCars = this.physics.add.group()
@@ -80,7 +80,7 @@ export default class Game extends Phaser.Scene {
     this.cursors = this.input.keyboard.createCursorKeys()
 
     // TIMER
-    this.timer = new Timer(this, 700, 65)
+    this.timer = new Timer(this, 900, 65)
     this.timer.start(this.gameOver.bind(this), this.gameTime)
     this.background.setSun(this.sunsetTime)
 
@@ -97,17 +97,42 @@ export default class Game extends Phaser.Scene {
       'mile100'
     ]
     mileEvents.forEach(event => {
-      this.events.once(event, this.handleMilestone, this)
+      this.events.once(event, () => this.handleMilestone(event), this)
     })
     this.events.once('police1', this.spawnPolice, this)
     this.events.once('police2', this.spawnPolice, this)
     this.events.once('police3', this.spawnPolice, this)
     this.events.once('wingame', this.winGame, this)
     this.events.once('moveon', this.moveOn, this)
+    this.events.once(
+      'ravenEvent',
+      () => {
+        this.raven = this.add.existing(new Raven(this, 150, 100))
+      },
+      this
+    )
   }
 
+  accelerateMusic(input) {
+    const outputStart = 1
+    const outputEnd = 1.3
+    const inputStart = 22
+    const inputEnd = this.maxGameSpeed
+    const slope = (outputEnd - outputStart) / (inputEnd - inputStart)
+    return outputStart + slope * (input - inputStart)
+  }
+  decelerateMusic(input) {
+    const outputStart = 0
+    const outputEnd = 1
+    const inputStart = 0
+    const inputEnd = 22
+    const slope = (outputEnd - outputStart) / (inputEnd - inputStart)
+    return outputStart + slope * (input - inputStart)
+  }
   update(time, delta) {
-    // console.log(this.physics.world.colliders)
+    this.music.setRate(this.accelerateMusic(this.gameSpeed))
+    if (this.gameSpeed < 20)
+      this.music.setRate(this.decelerateMusic(this.gameSpeed))
     this.carScale = this.params.carScale
     if (this.crashes > this.params.noOfLives) {
       this.gameOver()
@@ -117,6 +142,16 @@ export default class Game extends Phaser.Scene {
       this.animateGameOver()
       return
     }
+    // PROGRESS BAR
+    this.progressBar = new Phaser.Geom.Rectangle(
+      30,
+      30,
+      (200 / this.totalDistance) *
+        (this.totalDistance - this.remainingDistance),
+      5
+    )
+    this.progress.fillStyle(0x5fcde4, 1)
+    this.progress.fillRectShape(this.progressBar)
     // UPDATE
     this.timer.update()
     if (this.raven) this.raven.update()
@@ -134,6 +169,7 @@ export default class Game extends Phaser.Scene {
     }
     if (this.remainingDistance <= (this.totalDistance / 10) * 6) {
       this.events.emit('mile600')
+      this.events.emit('ravenEvent')
     }
     if (this.remainingDistance <= (this.totalDistance / 10) * 5) {
       this.events.emit('mile500')
@@ -177,7 +213,7 @@ export default class Game extends Phaser.Scene {
     } else if (this.cursors.right.isDown) {
       this.player.setVelocityX(160)
       if (this.gameSpeed === 0) this.gameSpeed = 19
-      if (this.gameSpeed < 80) this.gameSpeed += 0.5
+      if (this.gameSpeed < this.maxGameSpeed) this.gameSpeed += 0.5
     } else {
       if (this.isPoliceChase) {
         this.player.setVelocityX(-200)
@@ -231,6 +267,7 @@ export default class Game extends Phaser.Scene {
 
   winGame() {
     this.isPoliceChase = false
+    this.siren.stop()
     this.timer.label.setTint(0x00ff00)
     console.log('game is won')
     this.lastSign = this.add
@@ -242,6 +279,8 @@ export default class Game extends Phaser.Scene {
   }
 
   gameOver() {
+    this.game.restarted = true
+    this.music.stop()
     this.scene.start('gameover')
   }
 
@@ -264,6 +303,8 @@ export default class Game extends Phaser.Scene {
       car,
       () => {
         if (!this.slowedDown) {
+          this.bump = this.sound.add('bump')
+          this.bump.play({ volume: 0.5 })
           this.crashes++
           this.slowedDown = true
           this.blink(this.player)
@@ -283,6 +324,8 @@ export default class Game extends Phaser.Scene {
 
   spawnPolice() {
     this.background.flash('#ff0000', '#0000ff', 5000)
+    this.siren = this.sound.add('siren')
+    this.siren.play({ loop: true })
     const car = new PoliceCar(this)
     this.policeCars.add(car)
     car.setVelocityX(this.params.policeCarSpeed)
@@ -292,6 +335,7 @@ export default class Game extends Phaser.Scene {
       () => {
         this.player.setTint(0x00ff00)
         this.isPoliceChase = false
+        this.siren.stop()
         // this.physics.pause()
         // this.policeCars.killAndHide()
         // this.gameOver()
@@ -351,9 +395,14 @@ export default class Game extends Phaser.Scene {
     this.background.move()
   }
 
-  handleMilestone() {
-    this.mile100 = this.physics.add.sprite(1500, 300, 'mile100')
-    this.mile100.body.allowGravity = false
-    this.mile100.body.position.x -= 0.08 * this.scene.gameSpeed
+  handleMilestone(event) {
+    const mile = event.slice(4, 6)
+    this.milestone = this.physics.add.image(
+      this.game.config.width,
+      400,
+      `mile${mile}`
+    )
+    this.milestone.body.allowGravity = false
+    this.milestone.setDepth(2).setImmovable()
   }
 }

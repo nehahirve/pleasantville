@@ -34,6 +34,7 @@ export default class Timer {
 
   stop() {
     if (this.timerEvent) {
+      console.log('time us up')
       this.beep.stop()
       this.timerEvent.destroy()
       this.timerEvent = undefined
@@ -56,7 +57,7 @@ export default class Timer {
 
     if (remaining < 10000) {
       if (!this.beep.isPlaying) this.beep.play()
-      console.log('time us up')
+
       if (!this.countdown) {
         this.tween()
         this.countdown = true

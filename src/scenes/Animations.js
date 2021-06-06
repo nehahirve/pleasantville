@@ -1,8 +1,14 @@
 export default class Animations {
   constructor(scene) {
+    if (scene.game.restarted) {
+      return
+    }
     scene.anims.create({
       key: 'fly',
-      frames: scene.anims.generateFrameNumbers('raven', { start: 12, end: 15 }),
+      frames: scene.anims.generateFrameNumbers('raven', {
+        start: 12,
+        end: 15
+      }),
       frameRate: 10,
       repeat: -1
     })

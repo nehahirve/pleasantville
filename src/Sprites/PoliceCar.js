@@ -28,6 +28,7 @@ export default class PoliceCar extends Phaser.Physics.Arcade.Sprite {
     }
     if (this.getBounds().left > this.scene.game.config.width) {
       this.scene.isPoliceChase = false
+      this.scene.siren.stop()
       this.destroy()
     }
   }

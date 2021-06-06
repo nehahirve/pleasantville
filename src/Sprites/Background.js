@@ -23,11 +23,7 @@ export default class Background {
     this.midground = scene.add
       .tileSprite(0, 0, width, height, 'midground')
       .setOrigin(0, 0)
-    this.mediumSign = scene.physics.add
-      .sprite(1500, 300, 'medium')
-      .setScale(2)
-      .play('flash')
-    this.mediumSign.body.allowGravity = false
+
     this.ground = scene.add
       .tileSprite(0, 0, width, height, 'ground')
       .setOrigin(0, 0)
@@ -44,15 +40,46 @@ export default class Background {
       .setScale(1.2)
 
     this.scene = scene
+
+    this.scene.timedEvent = this.scene.time.addEvent({
+      delay: 10000,
+      callback: this.createMediumSign,
+      callbackScope: this,
+      loop: true
+    })
+  }
+
+  createMediumSign() {
+    console.log('hey')
+    if (!this.mediumSign) {
+      this.mediumSign = this.scene.physics.add
+        .sprite(1500, 300, 'medium')
+        .setScale(2)
+        .play('flash')
+      this.mediumSign.body.allowGravity = false
+    }
   }
 
   move() {
+    if (this.scene.milestone) {
+      this.scene.milestone.body.position.x -= 0.1 * this.scene.gameSpeed
+      if (this.scene.milestone.body.position.x < -50) {
+        this.scene.milestone = undefined
+      }
+    }
+
     this.clouds.tilePositionX += 0.008 * this.scene.gameSpeed
     this.cloudsEnd.tilePositionX += 0.008 * this.scene.gameSpeed
     this.backTrees.tilePositionX += 0.04 * this.scene.gameSpeed
     this.frontTrees.tilePositionX += 0.07 * this.scene.gameSpeed
     this.midground.tilePositionX += 0.08 * this.scene.gameSpeed
-    this.mediumSign.body.position.x -= 0.08 * this.scene.gameSpeed
+    if (this.mediumSign) {
+      console.log('there is a medium sign')
+      this.mediumSign.body.position.x -= 0.08 * this.scene.gameSpeed
+      if (this.mediumSign.body.position.x < -200) {
+        this.mediumSign = undefined
+      }
+    }
     this.fence.tilePositionX += (0.1 * this.scene.gameSpeed) / 1.2
     this.ground.tilePositionX += 0.1 * this.scene.gameSpeed
     this.foreground.tilePositionX += 0.15 * this.scene.gameSpeed
@@ -111,7 +138,9 @@ export default class Background {
         this.cloudsEnd.setTint(0xffffff)
         this.ground.setTint(0xffffff)
         this.midground.setTint(0xffffff)
-        this.mediumSign.setTint(0xffffff)
+        if (this.mediumSign) {
+          this.mediumSign.setTint(0xffffff)
+        }
       }
     }
   }
@@ -148,7 +177,9 @@ export default class Background {
         this.cloudsEnd.setTint(color)
         this.ground.setTint(color)
         this.midground.setTint(color)
-        this.mediumSign.setTint(color)
+        if (this.mediumSign) {
+          this.mediumSign.setTint(color)
+        }
       }
     })
   }

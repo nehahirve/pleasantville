@@ -11,7 +11,7 @@ export default class GameOver extends Phaser.Scene {
       .tileSprite(0, 0, width, height, 'gameOver')
       .setOrigin(0, 0)
 
-    this.input.keyboard.once('keydown', () => {
+    this.input.keyboard.once('keydown-ENTER', () => {
       this.scene.start('game')
     })
   }
