@@ -15,7 +15,7 @@ export default class PoliceCar extends Phaser.Physics.Arcade.Sprite {
 
   update() {
     this.setScale(this.body.position.y / this.scene.carScale)
-    if (this.body.position.x >= this.scene.game.config.width - 250) {
+    if (this.body.position.x >= this.scene.game.config.width - 450) {
       this.scene.physics.world.removeCollider(this.scene.policeCollider)
       if (this.scene.player.body.position.y > 400) {
         this.body.position.y--
@@ -28,6 +28,7 @@ export default class PoliceCar extends Phaser.Physics.Arcade.Sprite {
     }
     if (this.getBounds().left > this.scene.game.config.width) {
       this.scene.isPoliceChase = false
+      this.scene.background.stopFlash()
       this.scene.siren.stop()
       this.destroy()
     }

@@ -64,6 +64,7 @@ export default class Background {
     if (this.scene.milestone) {
       this.scene.milestone.body.position.x -= 0.1 * this.scene.gameSpeed
       if (this.scene.milestone.body.position.x < -50) {
+        this.scene.milestone.destroy()
         this.scene.milestone = undefined
       }
     }
@@ -73,10 +74,10 @@ export default class Background {
     this.backTrees.tilePositionX += 0.04 * this.scene.gameSpeed
     this.frontTrees.tilePositionX += 0.07 * this.scene.gameSpeed
     this.midground.tilePositionX += 0.08 * this.scene.gameSpeed
-    if (this.mediumSign) {
-      console.log('there is a medium sign')
+    if (this.mediumSign && this.mediumSign.body) {
       this.mediumSign.body.position.x -= 0.08 * this.scene.gameSpeed
       if (this.mediumSign.body.position.x < -200) {
+        this.mediumSign.destroy()
         this.mediumSign = undefined
       }
     }
@@ -102,7 +103,7 @@ export default class Background {
 
     const color1 = Phaser.Display.Color.ValueToColor('#ffffff')
     const color2 = Phaser.Display.Color.ValueToColor('#fc9003')
-    this.scene.tweens.addCounter({
+    this.sunTween = this.scene.tweens.addCounter({
       from: 0,
       to: 100,
       duration: duration,
@@ -127,21 +128,20 @@ export default class Background {
   }
 
   stopFlash() {
-    if (!this.scene.isPoliceChase) {
-      if (this.tween) {
-        this.tween.stop()
-        this.frontTrees.setTint(0xffffff)
-        this.sky.setTint(0xffffff)
-        this.skyEnd.setTint(0xffffff)
-        this.sun.setTint(0xffffff)
-        this.clouds.setTint(0xffffff)
-        this.cloudsEnd.setTint(0xffffff)
-        this.ground.setTint(0xffffff)
-        this.midground.setTint(0xffffff)
-        if (this.mediumSign) {
-          this.mediumSign.setTint(0xffffff)
-        }
-      }
+    this.tween.stop()
+    this.frontTrees.setTint(0xffffff)
+    this.sky.setTint(0xffffff)
+    this.skyEnd.setTint(0xffffff)
+    this.sun.setTint(0xffffff)
+    this.clouds.setTint(0xffffff)
+    this.cloudsEnd.setTint(0xffffff)
+    this.ground.setTint(0xffffff)
+    this.midground.setTint(0xffffff)
+    if (this.mediumSign) {
+      this.mediumSign.setTint(0xffffff)
+    }
+    if (this.scene.milestone) {
+      this.scene.milestone.setTint(0xffffff)
     }
   }
 
@@ -179,6 +179,9 @@ export default class Background {
         this.midground.setTint(color)
         if (this.mediumSign) {
           this.mediumSign.setTint(color)
+        }
+        if (this.scene.milestone) {
+          this.scene.milestone.setTint(color)
         }
       }
     })

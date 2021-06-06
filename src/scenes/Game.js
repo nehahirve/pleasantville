@@ -16,10 +16,10 @@ export default class Game extends Phaser.Scene {
   create() {
     this.params = {
       totalDistance: 10000,
-      totalTime: 75000,
+      totalTime: 85000,
       gameSpeed: 22,
       enemyCarRespawnRate: 3000,
-      sunsetTime: 60000,
+      sunsetTime: 70000,
       carScale: 400,
       noOfLives: 5,
       policeCarSpeed: 159
@@ -93,7 +93,7 @@ export default class Game extends Phaser.Scene {
       'mile500',
       'mile400',
       'mile300',
-      'mile100',
+      'mile200',
       'mile100'
     ]
     mileEvents.forEach(event => {
@@ -122,7 +122,7 @@ export default class Game extends Phaser.Scene {
     return outputStart + slope * (input - inputStart)
   }
   decelerateMusic(input) {
-    const outputStart = 0
+    const outputStart = 0.0001
     const outputEnd = 1
     const inputStart = 0
     const inputEnd = 22
@@ -195,7 +195,7 @@ export default class Game extends Phaser.Scene {
     if (this.remainingDistance <= (this.totalDistance / 10) * 5) {
       this.events.emit('police2')
     }
-    if (this.remainingDistance <= (this.totalDistance / 10) * 2) {
+    if (this.remainingDistance <= (this.totalDistance / 10) * 2.5) {
       this.events.emit('police3')
     }
 
@@ -234,8 +234,8 @@ export default class Game extends Phaser.Scene {
       this.player.anims.play('driveForward', true)
     }
     if (this.player.body.position.x < 100) this.player.body.position.x = 100
-    if (this.player.body.position.x > this.game.config.width - 200)
-      this.player.body.position.x = this.game.config.width - 200
+    if (this.player.body.position.x > this.game.config.width - 400)
+      this.player.body.position.x = this.game.config.width - 400
 
     this.respawnTime += delta * this.gameSpeed * 0.08
 
@@ -261,12 +261,11 @@ export default class Game extends Phaser.Scene {
       this.player.setVelocityX(0)
       this.player.setVelocityY(0)
     }
-
-    this.background.stopFlash()
   }
 
   winGame() {
     this.isPoliceChase = false
+    this.background.stopFlash()
     this.siren.stop()
     this.timer.label.setTint(0x00ff00)
     console.log('game is won')
@@ -333,12 +332,12 @@ export default class Game extends Phaser.Scene {
       this.player,
       car,
       () => {
-        this.player.setTint(0x00ff00)
         this.isPoliceChase = false
+        this.background.stopFlash()
         this.siren.stop()
-        // this.physics.pause()
-        // this.policeCars.killAndHide()
-        // this.gameOver()
+        this.physics.pause()
+        this.policeCars.killAndHide()
+        this.gameOver()
         this.crash.play()
       },
       null,
@@ -379,6 +378,8 @@ export default class Game extends Phaser.Scene {
     this.enemyCars.getChildren().forEach(obstacle => {
       this.enemyCars.killAndHide(obstacle)
     })
+
+    if (this.background.mediumSign) this.background.mediumSign.destroy()
     this.policeCars.getChildren().forEach(obstacle => {
       this.policeCars.killAndHide(obstacle)
     })

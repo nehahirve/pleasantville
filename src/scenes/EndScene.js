@@ -31,6 +31,9 @@ export default class EndScene extends Phaser.Scene {
       this.add
         .tileSprite(0, 0, width, height, 'endSceneWithPostcard')
         .setOrigin(0, 0)
+      this.input.keyboard.once('keydown-ENTER', () => {
+        window.parent.postMessage('nextLevel')
+      })
     })
 
     this.postcard.on('pointerout', () => {

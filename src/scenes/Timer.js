@@ -6,9 +6,9 @@ export default class Timer {
         fontSize: 36,
         fontFamily: 'mxCompis'
       })
-      .setDepth(4)
+      .setDepth(10)
     this.countdown = false
-    this.scene.add.image(x, y, 'clock').setScale(2)
+    this.scene.add.image(x, y, 'clock').setScale(2).setDepth(9)
     this.beep = this.scene.sound.add('timer')
   }
 
