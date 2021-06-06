@@ -11,7 +11,9 @@ This project was built from a Phaser 3 project template with ES6 support via [Ba
 ## Play the live version here
 
 [Game start: ](https://escapefromhyperisland.github.io/pleasantville)
+
 [This level: ](https://escapefromhyperisland.github.io/pleasantville/level-6)
+
 [Escape from Hyper Island: ](https://escapefromhyperisland.github.io)
 
 ## Or run locally
