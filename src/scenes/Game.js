@@ -15,7 +15,7 @@ export default class Game extends Phaser.Scene {
 
   create() {
     this.params = {
-      totalDistance: 10000,
+      totalDistance: 12000,
       totalTime: 85000,
       gameSpeed: 22,
       enemyCarRespawnRate: 3000,
@@ -280,6 +280,14 @@ export default class Game extends Phaser.Scene {
   gameOver() {
     this.game.restarted = true
     this.music.stop()
+    if (this.milestone) {
+      this.milestone.destroy()
+      this.milestone = undefined
+    }
+    if (this.background.mediumSign) {
+      this.background.mediumSign.destroy()
+      this.background.mediumSign = undefined
+    }
     this.scene.start('gameover')
   }
 
