@@ -279,6 +279,7 @@ export default class Game extends Phaser.Scene {
 
   gameOver() {
     this.game.restarted = true
+    this.siren.stop()
     this.music.stop()
     if (this.milestone) {
       this.milestone.destroy()
